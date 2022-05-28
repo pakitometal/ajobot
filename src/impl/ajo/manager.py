@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 from math import ceil
 from os import environ
 import time
@@ -196,3 +197,11 @@ class AjoManager:
                         "https://i.imgur.com/f2SsEqU.gif"
 
         return reply
+
+    async def get_inventory(self, user_id: str) -> int:
+            res = self.redis.hget(f"{user_id}:inventory", "items")
+            if not res:
+                # First time? Create it.
+                res = self.redis.hset(f"{user_id}:inventory", "items", json.dumps({}))
+                res = json.dumps({})
+            return res
