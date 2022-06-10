@@ -19,6 +19,12 @@ class Ajo(Cog):
         # Relevant message
         if contains_ajo:
             # 1. Log the message into the timeseries redis
+            # Hotfix
+            vampire_key = f"{message.author.id}:vampire"
+            vampire_level = self.bot.manager.redis.get(vampire_key) or 1
+            vampire_level = int(vampire_level) # TODO: Fixme
+            if vampire_level > 69:
+                return
 
             # Log the guild +1 ajo message
             self.bot.manager.redis_ts.add(f"ajoseries:{message.guild.id}:{message.author.id}", int(message.created_at.timestamp()), 1, labels={"guild": message.guild.id, "author": message.author.id})
@@ -69,18 +75,18 @@ class Ajo(Cog):
         await itr.send(embed=await self.bot.manager.get_leaderboard())
 
     # GAMBLE
-    async def __gamble(self, user: User, amount: int) -> str:
+    async def __gamble(self, user: User, amount: str) -> str:
         return await self.bot.manager.gamble_ajo(user.id, amount)
 
     @command(name="gamble", description="Gamble your ajos.")
-    async def gamble_command(self, ctx: Context[Bot], amount: int) -> None:
+    async def gamble_command(self, ctx: Context[Bot], amount: str) -> None:
         await ctx.reply(await self.__gamble(ctx.author, amount))
 
     @slash_command(name="gamble", description="Gamble your ajos.")
     async def gamble(
         self,
         itr: CommandInteraction,
-        amount: int = Param(description="How much ajos to gamble.")
+        amount: str = Param(description="How much ajos to gamble.")
     ) -> None:
         await itr.send(await self.__gamble(itr.author, amount))
 
