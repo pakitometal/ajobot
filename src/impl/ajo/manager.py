@@ -210,7 +210,7 @@ class AjoManager:
             if not res:
                 # First time? Create it.
                 res = self.redis.hset(f"{user_id}:inventory", "items", json.dumps({}))
-                res = json.dumps({})
+                res = b'{}'
 
             embed = Embed(
                 title="Inventory",
