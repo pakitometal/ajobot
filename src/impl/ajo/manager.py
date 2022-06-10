@@ -26,6 +26,7 @@ SCRIPTS = {
 }
 
 LEADERBOARD = "lb"
+AJO_EVENT_BUS = "AJOBUS"
 
 class AjoManager:
     def __init__(self) -> None:
@@ -59,6 +60,7 @@ class AjoManager:
         # ensure the name we have is correct
         await self.__setne_name(user_id, user_name)
         res = self.redis.zincrby(LEADERBOARD, amount, user_id)
+        self.redis.publish(AJO_EVENT_BUS, json.dumps({"author": user_id, "amount": amount}))
         return int(res)
 
     async def get_ajo(self, user_id: str) -> int:
