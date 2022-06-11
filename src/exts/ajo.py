@@ -1,9 +1,11 @@
+import json
 from disnake import CommandInteraction, Message, User
 from disnake.ext.commands import Cog, Context, Param, command, slash_command
 
 from src.impl.bot import Bot
 
 AJO = "🧄"
+AJO_EVENT_BUS = "bus:ajo"
 
 class Ajo(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -35,6 +37,11 @@ class Ajo(Cog):
                 f"{message.author.name}#{message.author.discriminator}",
                 1
             )
+
+            # Example redis publish: publish bus:ajo:9:123456789 <json>
+            guild_id = message.guild.id
+
+            self.bot.manager.redis.publish(f"{AJO_EVENT_BUS}:{guild_id[-1]}:{guild_id}", json.dumps({"v": 1, "created_at": message.created_at.isoformat(), "message_id": message.id, "guild_id": guild_id, "author_id": message.author.id, "amount": 1}))
 
             is_begging = await self.bot.manager.is_begging_for_ajo(message)
             if is_begging:
