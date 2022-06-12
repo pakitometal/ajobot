@@ -11,7 +11,7 @@ AJO_EVENT_BUS = "bus:ajo"
 class Ajo(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
-        self.farm.start()
+        #self.farm.start()
 
     @tasks.loop(seconds=0.50)
     async def farm(self):
@@ -57,7 +57,7 @@ class Ajo(Cog):
 
         # Relevant message
         if contains_ajo:
-            self.bot.manager.redis.publish(f"{AJO_EVENT_BUS}:farmed", json.dumps({"v": 1, "created_at": message.created_at.strftime('%s'), "message_id": message.id, "guild_id": message.guild.id, "author_id": message.author.id, "author_name": message.author.name, "author_discriminator": message.author.discriminator }))
+            self.bot.manager.redis.xadd(AJO_EVENT_BUS,{"event_name": "farm", "v": 1, "message_id": message.id, "guild_id": message.guild.id, "author_id": message.author.id},'*')
             is_begging = await self.bot.manager.is_begging_for_ajo(message)
             if is_begging:
                 await message.add_reaction(AJO)
